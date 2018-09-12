@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+set -e
+set -x
+
 echo 'default config...'
 cfssl print-defaults config 
 echo 'default csr'
@@ -80,6 +83,9 @@ cat > kubernetes-csr.json <<EOF
       "192.168.11.129",
       "192.168.11.131",
       "192.168.11.132",
+      "192.168.11.133",
+      "node1",
+      "node2",
       "kubernetes",
       "kubernetes.default",
       "kubernetes.default.svc",
@@ -173,6 +179,8 @@ cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json -profile=kube
 ls kube-proxy*
 
 # 分发证书
+rm -fr /etc/kubernetes
+rm -fr ~/.kube
 mkdir -p /etc/kubernetes/ssl
 cp *.pem /etc/kubernetes/ssl
 
@@ -245,9 +253,6 @@ kubectl config set-context default \
   --kubeconfig=kube-proxy.kubeconfig
 # 设置默认上下文
 kubectl config use-context default --kubeconfig=kube-proxy.kubeconfig
-
-rm /etc/kubernetes/kubelet.kubeconfig
-cd -
 
 # 创建 kubectl kubeconfig 文件
 # 设置集群参数
@@ -389,4 +394,4 @@ cat > proxy <<EOF
 KUBE_PROXY_ARGS="--bind-address=0.0.0.0 --kubeconfig=/etc/kubernetes/kube-proxy.kubeconfig --cluster-cidr=10.1.0.0/16 --hostname-override=node1"
 EOF
 
-cp config apiserver controller-manager scheduler kubelet proxy /etc/kubernetes/
+cd -

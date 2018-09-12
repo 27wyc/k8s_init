@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+set -e
+set -x
 
 rm -fr /var/lib/etcd/default.etcd/*
 systemctl start etcd.service
