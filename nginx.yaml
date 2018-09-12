@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment  
+metadata:
+  name: nginx-demo
+  labels:
+    app: nginx-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx-demo
+  template:
+    metadata:
+      labels:
+        app: nginx-demo
+    spec:
+      containers:
+      - name: nginx-demo
+        image: nginx:1.7.9
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: nginx-demo
+  name: nginx-demo
+spec:
+  type: NodePort  # Service类型，NodePort，ClusterIP，LoadBalancer
+  ports:  
+    - port: 80  # Service开放的端口 
+      targetPort: 80  # Pod定义的服务端口
+      name: http  # Pod定义的端口名字，targetPort/name配一个就可以
+      protocol: TCP  # 通讯协议，默认TCP
+      nodePort: 30036  # type: NodePort时，开放的端口，一般由集群分配，这里演示，指定了端口
+  selector:
+      app: nginx-demo
